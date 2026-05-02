@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows (.exe)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Install package
+        run: pip install -e .
+      - name: Build executable
+        run: pyinstaller build/windows.spec
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SysBoost-Windows
+          path: dist/SysBoost.exe
+
+  build-linux:
+    name: Build Linux (binary)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install system dependencies
+        run: sudo apt-get install -y python3-tk tk-dev
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Install package
+        run: pip install -e .
+      - name: Build executable
+        run: pyinstaller build/linux.spec
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SysBoost-Linux
+          path: dist/SysBoost
+
+  build-macos:
+    name: Build macOS (.app)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Install package
+        run: pip install -e .
+      - name: Build executable
+        run: pyinstaller build/macos.spec
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SysBoost-macOS
+          path: dist/SysBoost.app
+
+  create-release:
+    name: Create GitHub Release
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            SysBoost-Windows/SysBoost.exe
+            SysBoost-Linux/SysBoost
+            SysBoost-macOS/SysBoost.app
+          generate_release_notes: true
