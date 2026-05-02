@@ -1,4 +1,4 @@
-"""SysBoost plugins package — auto-discovery and loading."""
-from .base import SysBoostPlugin, OptimizationResult
+"""Plugins module for SysBoost."""
+from .base import BasePlugin
 
-__all__ = ["SysBoostPlugin", "OptimizationResult"]
+__all__ = ["BasePlugin"]

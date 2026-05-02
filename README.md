@@ -97,6 +97,22 @@ Place in `plugins/my-plugin/__init__.py` — SysBoost auto-discovers it.
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 
+## Development & Build
+
+If you want to generate the executable binary for distribution:
+
+### Windows
+```powershell
+./scripts/build.ps1
+```
+
+### Linux / macOS
+```bash
+pyinstaller sysboost.spec
+```
+
+The resulting binary will be located in the `dist/` folder.
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.

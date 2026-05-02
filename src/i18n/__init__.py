@@ -2,57 +2,58 @@
 import json
 import locale
 from pathlib import Path
+import platformdirs
 
 _TRANSLATIONS: dict[str, dict] = {}
-_current_lang: str = "en_US"
-
+_current_lang: str = "en"
 
 def _load_lang(lang: str) -> dict:
     """Load a JSON translation file for the given language code."""
-    lang_file = Path(__file__).parent / f"{lang}.json"
+    # Look into src/i18n/locales/
+    lang_file = Path(__file__).parent / "locales" / f"{lang}.json"
     if lang_file.exists():
         with open(lang_file, encoding="utf-8") as f:
             return json.load(f)
     return {}
 
-
 def init(lang: str | None = None) -> None:
-    """Initialize i18n. Auto-detects system locale if lang is None.
-
-    Args:
-        lang: Language code, e.g. 'pt_BR' or 'en_US'. Auto-detected if None.
-    """
+    """Initialize i18n. Checks settings.json first, then auto-detects."""
     global _current_lang
+    
+    # 1. Try to load from settings.json
+    config_dir = Path(platformdirs.user_config_dir("SysBoost", "SysBoost"))
+    config_file = config_dir / "settings.json"
+    
+    if lang is None and config_file.exists():
+        try:
+            with open(config_file, "r") as f:
+                lang = json.load(f).get("language")
+        except:
+            pass
+
+    # 2. Auto-detect if still None
     if lang is None:
         try:
-            system_locale = locale.getdefaultlocale()[0] or "en_US"
-        except Exception:
-            system_locale = "en_US"
-        lang = system_locale if system_locale in ["pt_BR", "en_US"] else "en_US"
-    _current_lang = lang
-    for lang_code in ["en_US", "pt_BR"]:
+            # Simple check for pt_BR or similar
+            sys_loc = locale.getdefaultlocale()[0] or "en"
+            lang = "pt" if sys_loc.startswith("pt") else "en"
+        except:
+            lang = "en"
+
+    _current_lang = lang if lang in ["pt", "en"] else "en"
+    
+    # Load all available languages
+    for lang_code in ["en", "pt"]:
         _TRANSLATIONS[lang_code] = _load_lang(lang_code)
 
-
 def t(key: str, lang: str | None = None) -> str:
-    """Translate a key to the current or specified language.
-
-    Falls back to en_US if the key is not found in the target language.
-    Returns the key itself if not found in any language.
-
-    Args:
-        key: Translation key, e.g. 'nav.overview'
-        lang: Override language for this call only.
-
-    Returns:
-        Translated string, or the key if no translation found.
-    """
+    """Translate a key to the current or specified language."""
     target = lang or _current_lang
     translation = _TRANSLATIONS.get(target, {}).get(key)
     if translation is None:
-        translation = _TRANSLATIONS.get("en_US", {}).get(key, key)
+        # Fallback to English, then to key itself
+        translation = _TRANSLATIONS.get("en", {}).get(key, key)
     return translation
-
 
 def current_lang() -> str:
     """Return the currently active language code."""

@@ -1,0 +1,10 @@
+{
+    "id": "com.sysboost.example.cleanup",
+    "name": "Custom Cleanup Tool",
+    "description": "Removes temporary logs and crash reports from common apps.",
+    "version": "1.0.0",
+    "author": "SysBoost Team",
+    "main_file": "__init__.py",
+    "main_class": "CleanupPlugin",
+    "min_app_version": "1.0.0"
+}
