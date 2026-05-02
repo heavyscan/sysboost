@@ -3,8 +3,8 @@
 ## Estado Atual
 
 **Milestone:** 1 — MVP Funcional
-**Fase Ativa:** Nenhuma (inicialização concluída)
-**Próxima Ação:** `/gsd-plan-phase 1`
+**Fase Ativa:** Fase 1 — Estrutura e Fundação
+**Próxima Ação:** `/gsd-execute-phase 1`
 
 ## Progresso
 
